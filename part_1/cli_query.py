@@ -41,9 +41,14 @@ def get_quote_by_name(name: str) -> Response:
 @register('tag')
 def get_quote_by_tag(tag: str) -> Response:
     """Get a quote by tag."""
+    quotes = Quote.objects(tags=tag).all()
+    payload = []
+    for quote in quotes:
+        quote_model = QuoteModel(**quote.to_mongo())
+        payload.append(quote_model)
     return Response(
         result='OK',
-        payload=f"QuoteModel.objects(tags={tag})"
+        payload=payload
     )
 
 
@@ -56,12 +61,12 @@ if __name__ == "__main__":
     connection = connect(host=connection_string)
     while True:
         query = input("Enter a query: ")
-        handler, *args = query.split(':')
+        handler, args = query.split(':', maxsplit=1)
         if handler.lower() == "exit":
             break
         if handler not in HANDLERS:
             print(f"Unknown command: {handler}.\n"
                   f"Available commands: {', '.join(HANDLERS.keys())}, exit\n")
             continue
-        response = HANDLERS[handler](*args)
+        response = HANDLERS[handler](args)
         print(response.result, response.payload)
