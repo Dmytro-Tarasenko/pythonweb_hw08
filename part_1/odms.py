@@ -16,7 +16,7 @@ class Author(Document):
 
 class Quote(Document):
     """MongoDB Quote Document"""
-    author = ReferenceField(Author, required=True)
+    author = ReferenceField(Author, required=True, dbref=True)
     tags = ListField(StringField())
     quote = StringField()
     meta = {'collection': 'quotes'}
