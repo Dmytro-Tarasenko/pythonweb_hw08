@@ -6,11 +6,13 @@ authors = ["Dmytro-Tarasenko <ug.dotenko@gmail.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = "^3.11"
 mongoengine = "^0.28.2"
 pydantic = "^2.6.4"
 redis = "^5.0.3"
 rich = "^13.7.1"
+pymongo = "^4.6.2"
+python-dotenv = "^1.0.1"
 
 
 [build-system]

@@ -3,9 +3,17 @@ from mongoengine import connect
 from models import QuoteModel
 from odms import Quote
 import json
+from dotenv import load_dotenv
+from os import getenv
+
+
+load_dotenv()
+ATLAS_HOST = getenv('ATLAS_HOST')
+ATLAS_PARAMS = getenv('ATLAS_PARAMS')
 
 if __name__ == "__main__":
-    connection = connect('pythonweb_hw08')
+    connection_string = ATLAS_HOST+'pythonweb_hw08'+ATLAS_PARAMS
+    connection = connect(host=connection_string)
     qoutes = []
     with open("quotes.json", "r", encoding="utf-8") as file:
         qoutes = json.load(file)
