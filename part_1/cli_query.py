@@ -100,7 +100,7 @@ if __name__ == "__main__":
     ATLAS_PARAMS = getenv('ATLAS_PARAMS')
 
     connection_string = ATLAS_HOST + 'pythonweb_hw08' + ATLAS_PARAMS
-    connection = connect(host=connection_string)
+    connection = connect(host=connection_string, ssl=False)
     while True:
         query = input("Enter a query: ")
         handler, *args = query.split(':', maxsplit=1)

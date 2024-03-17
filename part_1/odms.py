@@ -7,7 +7,7 @@ from mongoengine import (Document,
 
 class Author(Document):
     """MongoDB Author Document"""
-    fullname = StringField(required=True)
+    fullname = StringField(required=True, unique=True)
     born_date = StringField()
     born_location = StringField()
     description = StringField()
