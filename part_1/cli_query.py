@@ -1,21 +1,19 @@
 """CLI for quote queries."""
-from redis import Redis
-from mongoengine import connect
 from dataclasses import dataclass
 from typing import Any, List
-from dotenv import load_dotenv
 from os import getenv
+from dotenv import load_dotenv
+from mongoengine import connect
 from rich.console import Console
 from rich.table import Table
 
 from odms import Quote
 from models import QuoteModel
 
-# redis = Redis(host='redis', port=6379)
-
 
 @dataclass
 class Response:
+    """Utility class for responses."""
     result: str
     payload: Any
 
@@ -71,7 +69,8 @@ def get_quote_by_tag(tag: str) -> Response:
     )
 
 
-def print_models(models: List[Any]) -> None:
+def print_models(models: List[Any],
+                 exclude: str | None = None) -> None:
     """Print models."""
     if not models:
         print("No results.")
@@ -80,10 +79,14 @@ def print_models(models: List[Any]) -> None:
     table = Table(title="Results")
     table.add_column("#")
     for key in models[0].model_fields:
+        if key == exclude:
+            continue
         table.add_column(key)
     for i, model in enumerate(models):
         fields = [str(i+1)]
         for field in model.model_fields:
+            if field == exclude:
+                continue
             if isinstance(model.__getattribute__(field), list):
                 fields.append(", ".join(model.__getattribute__(field)))
             else:

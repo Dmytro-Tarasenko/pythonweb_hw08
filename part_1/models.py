@@ -1,13 +1,14 @@
 """Model definitions for Author and Quote documents"""
-from pydantic import BaseModel, field_validator, Field
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Any
+from pydantic import BaseModel, field_validator
 
 
 class AuthorModel(BaseModel):
     """Data model for Author Document"""
     @field_validator('born_date')
-    def validate_born_date(cls, value):
+    @staticmethod
+    def validate_born_date(value):
         try:
             date_ = datetime.strptime(value, '%B %d, %Y')
         except ValueError:
@@ -22,13 +23,9 @@ class AuthorModel(BaseModel):
     description: Optional[str] = None
 
 
-class Tag(BaseModel):
-    """Data model for Tag Embedded Document"""
-    tag: str
-
-
 class QuoteModel(BaseModel):
     """Data model for Quote Document"""
-    author: str
+    author: Any
+    author_name: Optional[str] = None
     tags: Optional[List[str]] = []
     quote: Optional[str] = None
