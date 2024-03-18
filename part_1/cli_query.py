@@ -7,7 +7,7 @@ from mongoengine import connect
 from rich.console import Console
 from rich.table import Table
 
-from odms import Quote
+from odms import Quote, Author
 from models import QuoteModel
 
 
@@ -33,7 +33,19 @@ def register(handler):
 def get_quote_by_name(name: str) -> Response:
     """Get a quote by name."""
     try:
-        quotes = Quote.objects(author=name).all()
+        author_id = Author.objects(fullname=name).first().id
+    except Exception as e:
+        return Response(
+            result='Error',
+            payload=str(e)
+        )
+    if not author_id:
+        return Response(
+            result='Error',
+            payload=f"Author {name} not found."
+        )
+    try:
+        quotes = Quote.objects(author=author_id).all()
     except Exception as e:
         return Response(
             result='Error',
@@ -41,7 +53,7 @@ def get_quote_by_name(name: str) -> Response:
         )
     payload = []
     for quote in quotes:
-        quote_model = QuoteModel(**quote.to_mongo())
+        quote_model = QuoteModel(author_name=name, **quote.to_mongo())
         payload.append(quote_model)
     return Response(
         result='OK',
@@ -103,7 +115,7 @@ if __name__ == "__main__":
     ATLAS_PARAMS = getenv('ATLAS_PARAMS')
 
     connection_string = ATLAS_HOST + 'pythonweb_hw08' + ATLAS_PARAMS
-    connection = connect(host=connection_string, ssl=False)
+    connection = connect(host=connection_string)
     while True:
         query = input("Enter a query: ")
         handler, *args = query.split(':', maxsplit=1)
@@ -118,6 +130,7 @@ if __name__ == "__main__":
         response = HANDLERS[handler](*args)
 
         if response.result == "OK":
-            print_models(response.payload)
+            print_models(response.payload,
+                         exclude="author")
         else:
             print(f"Error: {response.payload}")
