@@ -1,7 +1,7 @@
 """Model definitions for Author and Quote documents"""
 from datetime import datetime
 from typing import Optional, List, Any
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, field_validator, Field
 
 
 class AuthorModel(BaseModel):

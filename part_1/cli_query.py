@@ -2,13 +2,17 @@
 from dataclasses import dataclass
 from typing import Any, List
 from os import getenv
+import pickle
 from dotenv import load_dotenv
 from mongoengine import connect
 from rich.console import Console
 from rich.table import Table
+import redis
 
 from odms import Quote, Author
 from models import QuoteModel
+
+r = redis.Redis(host="localhost", port=6379, password=None)
 
 
 @dataclass
@@ -32,8 +36,16 @@ def register(handler):
 @register('name')
 def get_quote_by_name(name: str) -> Response:
     """Get a quote by name."""
+    author_id = None
+    if cached := r.get(f"name:{name}"):
+        print("Cached")
+        return Response(
+            result='OK',
+            payload=pickle.loads(cached)
+        )
     try:
-        author_id = Author.objects(fullname=name).first().id
+        if author := Author.objects(fullname=name).first():
+            author_id = author.id
     except Exception as e:
         return Response(
             result='Error',
@@ -55,6 +67,10 @@ def get_quote_by_name(name: str) -> Response:
     for quote in quotes:
         quote_model = QuoteModel(author_name=name, **quote.to_mongo())
         payload.append(quote_model)
+
+    cached = pickle.dumps(payload)
+    r.set(f"name:{name}", cached)
+
     return Response(
         result='OK',
         payload=payload
@@ -64,6 +80,12 @@ def get_quote_by_name(name: str) -> Response:
 @register('tag')
 def get_quote_by_tag(tag: str) -> Response:
     """Get a quote by tag."""
+    if cached := r.get(f"tag:{tag}"):
+        print("Cached")
+        return Response(
+            result='OK',
+            payload=pickle.loads(cached)
+        )
     try:
         quotes = Quote.objects(tags=tag).all()
     except Exception as e:
@@ -75,6 +97,10 @@ def get_quote_by_tag(tag: str) -> Response:
     for quote in quotes:
         quote_model = QuoteModel(**quote.to_mongo())
         payload.append(quote_model)
+
+    cached = pickle.dumps(payload)
+    r.set(f"tag:{tag}", cached)
+
     return Response(
         result='OK',
         payload=payload
