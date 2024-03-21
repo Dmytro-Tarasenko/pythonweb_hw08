@@ -56,5 +56,5 @@ def main() -> None:
     connection.close()
 
 if __name__ == "__main__":
-    # seed_db(count=25)
+    seed_db(count=25)
     main()
