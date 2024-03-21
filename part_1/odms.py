@@ -2,6 +2,7 @@
 from mongoengine import (Document,
                          StringField,
                          ListField,
+                         DictField,
                          ReferenceField)
 
 
